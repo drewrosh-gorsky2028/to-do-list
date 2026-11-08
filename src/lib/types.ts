@@ -35,6 +35,10 @@ export type Task = {
   doneAt?: string;
   /** Shells paid out when it was finished, so undo takes back exactly that many. */
   shellsEarned?: number;
+  /** Google Calendar event for this task, when it was put on the calendar. */
+  calendarEventId?: string;
+  /** End time "HH:MM" of the calendar block, as last seen on the calendar. */
+  endTime?: string;
 };
 
 /** The parts of a task someone fills in when adding it. */
@@ -44,4 +48,6 @@ export type TaskDraft = {
   size: Size;
   due?: DateKey;
   time?: string;
+  /** Put it on Google Calendar too. Only works with a day and a time. */
+  onCalendar?: boolean;
 };

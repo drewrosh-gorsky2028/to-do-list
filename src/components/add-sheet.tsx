@@ -16,6 +16,7 @@ import { addDays, formatTime, fromKey, relativeDay, shortDate, WEEKDAYS } from '
 import { parseTask } from '@/lib/parse';
 import { addLine } from '@/lib/pebble';
 import { CATEGORIES, SHELLS, SIZE_LABEL, type Category, type Size, type TaskDraft } from '@/lib/types';
+import { useCalendar } from '@/store/calendar';
 import { useTasks } from '@/store/tasks';
 import { categoryColors, colors, eyebrow, fonts, MAX_WIDTH } from '@/theme';
 
@@ -50,6 +51,8 @@ export function AddSheet({ visible, onClose }: Props) {
   const [text, setText] = useState('');
   const [manual, setManual] = useState<Manual>({});
   const [picker, setPicker] = useState<Picker>(null);
+  const [onCalendar, setOnCalendar] = useState(false);
+  const calendar = useCalendar();
 
   useEffect(() => {
     if (!visible) return;
@@ -57,6 +60,7 @@ export function AddSheet({ visible, onClose }: Props) {
     setManual({});
     setPicker(null);
     setMode('sentence');
+    setOnCalendar(false);
   }, [visible]);
 
   const lastCategory = useMemo(() => {
@@ -78,11 +82,25 @@ export function AddSheet({ visible, onClose }: Props) {
   const set = (patch: Manual) => setManual((m) => ({ ...m, ...patch }));
   const canAdd = draft.title.trim().length > 0;
 
+  const canCalendar = calendar.status === 'on' && !!draft.due && !!draft.time;
+
   const submit = () => {
     if (!canAdd) return;
-    addTask(draft);
+    const task = addTask(draft);
+    // Only tasks switched on by hand go to Google Calendar.
+    if (canCalendar && onCalendar) calendar.putOnCalendar(task).catch(() => {});
     onClose();
   };
+
+  const calendarChip = canCalendar ? (
+    <Pressable
+      onPress={() => setOnCalendar((v) => !v)}
+      accessibilityRole="switch"
+      accessibilityState={{ checked: onCalendar }}
+      style={[styles.chip, onCalendar && styles.choiceSelected]}>
+      <Text style={styles.choiceText}>{onCalendar ? 'On my calendar' : 'Add to calendar'}</Text>
+    </Pressable>
+  ) : null;
 
   const switchMode = () => {
     if (mode === 'sentence') {
@@ -209,6 +227,7 @@ export function AddSheet({ visible, onClose }: Props) {
                             </Text>
                           </Chip>
                         )}
+                        {calendarChip}
                       </View>
                       {picker === 'category' && categoryPicker}
                       {picker === 'size' && sizePicker}
@@ -249,6 +268,12 @@ export function AddSheet({ visible, onClose }: Props) {
                     <View style={styles.field}>
                       <Text style={eyebrow}>Time</Text>
                       {timePicker}
+                    </View>
+                  )}
+                  {calendarChip && (
+                    <View style={styles.field}>
+                      <Text style={eyebrow}>Google Calendar</Text>
+                      <View style={styles.choiceRow}>{calendarChip}</View>
                     </View>
                   )}
                 </>

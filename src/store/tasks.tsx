@@ -17,7 +17,8 @@ type Action =
   | { type: 'add'; task: Task }
   | { type: 'finish'; id: string; at: string }
   | { type: 'unfinish'; id: string }
-  | { type: 'remove'; id: string };
+  | { type: 'remove'; id: string }
+  | { type: 'update'; id: string; patch: Partial<Task> };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -39,6 +40,8 @@ function reducer(state: State, action: Action): State {
           t.id === action.id ? { ...t, doneAt: undefined, shellsEarned: undefined } : t,
         ),
       };
+    case 'update':
+      return { ...state, tasks: state.tasks.map((t) => (t.id === action.id ? { ...t, ...action.patch } : t)) };
     case 'remove':
       return { ...state, tasks: state.tasks.filter((t) => t.id !== action.id) };
   }
@@ -54,6 +57,7 @@ type Store = {
   finishTask: (id: string) => FinishResult | undefined;
   unfinishTask: (id: string) => void;
   removeTask: (id: string) => void;
+  updateTask: (id: string, patch: Partial<Task>) => void;
 };
 
 const TaskContext = createContext<Store | null>(null);
@@ -113,10 +117,11 @@ export function TaskProvider({ children }: { children: ReactNode }) {
 
   const unfinishTask = useCallback((id: string) => dispatch({ type: 'unfinish', id }), []);
   const removeTask = useCallback((id: string) => dispatch({ type: 'remove', id }), []);
+  const updateTask = useCallback((id: string, patch: Partial<Task>) => dispatch({ type: 'update', id, patch }), []);
 
   const value = useMemo(
-    () => ({ tasks: state.tasks, loaded: state.loaded, today, addTask, finishTask, unfinishTask, removeTask }),
-    [state.tasks, state.loaded, today, addTask, finishTask, unfinishTask, removeTask],
+    () => ({ tasks: state.tasks, loaded: state.loaded, today, addTask, finishTask, unfinishTask, removeTask, updateTask }),
+    [state.tasks, state.loaded, today, addTask, finishTask, unfinishTask, removeTask, updateTask],
   );
 
   return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;

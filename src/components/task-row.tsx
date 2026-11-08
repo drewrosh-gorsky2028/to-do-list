@@ -27,7 +27,7 @@ function meta(task: Task, today: string, overdue?: boolean): string {
     const late = daysBetween(task.due, today);
     parts.push(late === 1 ? '1 day late' : `${late} days late`);
   } else if (task.due && task.due !== today) parts.push(`Due ${relativeDay(task.due, today)}`);
-  if (!task.doneAt && task.time) parts.push(formatTime(task.time));
+  if (!task.doneAt && task.time && !task.calendarEventId) parts.push(formatTime(task.time));
   parts.push(task.category, SIZE_SHORT[task.size]);
   return parts.join(' · ');
 }
@@ -155,6 +155,12 @@ export function TaskRow({ task, today, overdue, onFinish, onUndo }: Props) {
           {task.title}
         </Text>
         <Text style={styles.meta}>{splashing ? meta({ ...task, doneAt: 'now' }, today) : meta(task, today, overdue)}</Text>
+        {task.calendarEventId && !done && task.time && (
+          <Text style={styles.calendar}>
+            On your calendar {formatTime(task.time)}
+            {task.endTime ? ` to ${formatTime(task.endTime)}` : ''}
+          </Text>
+        )}
       </View>
 
       {splashing && (
@@ -196,6 +202,7 @@ const styles = StyleSheet.create({
   title: { fontFamily: fonts.headingBold, fontSize: 18, lineHeight: 22, color: colors.wetStone },
   titleDone: { color: colors.muted, textDecorationLine: 'line-through' },
   meta: { fontFamily: fonts.body, fontSize: 13, color: colors.body },
+  calendar: { fontFamily: fonts.bodyBold, fontSize: 13, color: colors.river },
   pill: { paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, backgroundColor: colors.sand },
   pillText: { fontFamily: fonts.heading, fontSize: 15, color: colors.wetStone },
 });
