@@ -12,14 +12,16 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { RockIcon } from '@/components/icons';
+import { CalendarSheet } from '@/components/calendar-sheet';
+import { RockIcon, WeekIcon } from '@/components/icons';
 import { PebbleCorner } from '@/components/pebble-corner';
 import { TAB_BAR_HEIGHT } from '@/components/tab-bar';
 import { TaskRow } from '@/components/task-row';
-import { longDay } from '@/lib/dates';
+import { formatTime, longDay } from '@/lib/dates';
 import { finishLine, idleLine, moodFor } from '@/lib/pebble';
 import { totalShells } from '@/lib/progress';
 import type { Category, Task } from '@/lib/types';
+import { useCalendar } from '@/store/calendar';
 import { useAddSheet, useTasks } from '@/store/tasks';
 import { categoryColors, colors, eyebrow, fonts, MAX_WIDTH, WIDE } from '@/theme';
 
@@ -43,6 +45,10 @@ export default function TodayScreen() {
   const [celebration, setCelebration] = useState<string | null>(null);
   const [rockBanner, setRockBanner] = useState<Category | null>(null);
   const [showDone, setShowDone] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const calendar = useCalendar();
+  const taskEventIds = new Set(tasks.map((t) => t.calendarEventId).filter(Boolean));
+  const otherEvents = calendar.todayEvents.filter((e) => !taskEventIds.has(e.id));
   const [lineSeed, setLineSeed] = useState(() => Math.floor(Math.random() * 100));
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const shellPulse = useRef(new Animated.Value(0)).current;
@@ -120,7 +126,7 @@ export default function TodayScreen() {
         ]}>
         <View style={styles.column}>
           <View style={styles.header}>
-            <View>
+            <View style={{ flex: 1 }}>
               <Text style={eyebrow}>{longDay(today)}</Text>
               <Text style={styles.title}>Today</Text>
             </View>
@@ -138,7 +144,21 @@ export default function TodayScreen() {
                 {shells} {shells === 1 ? 'shell' : 'shells'}
               </Animated.Text>
             </Animated.View>
+            <Pressable
+              onPress={() => setCalendarOpen(true)}
+              accessibilityRole="button"
+              accessibilityLabel="Calendar settings"
+              style={styles.calendarButton}>
+              <WeekIcon color={calendar.status === 'on' ? colors.river : colors.muted} size={22} />
+              {calendar.status === 'needs-tap' && <View style={styles.calendarDot} />}
+            </Pressable>
           </View>
+
+          {calendar.status === 'needs-tap' && (
+            <Pressable onPress={calendar.connect} accessibilityRole="button" style={styles.reconnect}>
+              <Text style={styles.reconnectText}>Tap to reconnect Google Calendar</Text>
+            </Pressable>
+          )}
 
           {rockBanner && (
             <View style={styles.rockBanner} accessibilityLiveRegion="polite">
@@ -167,6 +187,19 @@ export default function TodayScreen() {
               ) : (
                 sections.today.map((t) => <TaskRow key={t.id} task={t} today={today} onFinish={onFinish} />)
               )}
+            </Section>
+          )}
+
+          {otherEvents.length > 0 && (
+            <Section label="On your calendar">
+              {otherEvents.map((e) => (
+                <View key={e.id} style={styles.event}>
+                  <Text style={styles.eventTime}>{e.start ? formatTime(e.start) : 'All day'}</Text>
+                  <Text style={styles.eventTitle} numberOfLines={2}>
+                    {e.title}
+                  </Text>
+                </View>
+              ))}
             </Section>
           )}
 
@@ -208,6 +241,8 @@ export default function TodayScreen() {
         </View>
       </ScrollView>
 
+      <CalendarSheet visible={calendarOpen} onClose={() => setCalendarOpen(false)} />
+
       {loaded && (
         <PebbleCorner mood={mood} line={line} bottom={bottomBar + 14} onPress={() => setLineSeed((s) => s + 1)} />
       )}
@@ -234,7 +269,22 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.mist },
   scroll: { paddingHorizontal: 18, alignItems: 'center' },
   column: { width: '100%', maxWidth: MAX_WIDTH, gap: 18 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
+  header: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
+  calendarButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.card,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 2,
+  },
+  calendarDot: { position: 'absolute', top: 8, right: 8, width: 9, height: 9, borderRadius: 5, backgroundColor: '#C7772A' },
+  reconnect: { padding: 12, borderRadius: 16, backgroundColor: colors.sandLight },
+  reconnectText: { fontFamily: fonts.bodyBold, fontSize: 14, color: colors.wetStone },
+  event: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, paddingHorizontal: 14, borderRadius: 16, backgroundColor: colors.riverTint },
+  eventTime: { width: 64, fontFamily: fonts.bodyBold, fontSize: 13, color: colors.river },
+  eventTitle: { flex: 1, fontFamily: fonts.bodySemi, fontSize: 15, color: colors.wetStone },
   title: { fontFamily: fonts.heading, fontSize: 38, lineHeight: 44, color: colors.wetStone },
   shells: { paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, marginBottom: 8 },
   shellsText: { fontFamily: fonts.bodyBold, fontSize: 13 },

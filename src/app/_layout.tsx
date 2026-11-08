@@ -11,6 +11,7 @@ import { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AppTabs } from '@/components/tab-bar';
+import { CalendarProvider } from '@/store/calendar';
 import { TaskProvider } from '@/store/tasks';
 import { colors } from '@/theme';
 
@@ -38,8 +39,10 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <ThemeProvider value={theme}>
         <TaskProvider>
-          <StatusBar style="dark" />
-          <AppTabs />
+          <CalendarProvider>
+            <StatusBar style="dark" />
+            <AppTabs />
+          </CalendarProvider>
         </TaskProvider>
       </ThemeProvider>
     </SafeAreaProvider>
