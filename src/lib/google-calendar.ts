@@ -5,7 +5,7 @@ import { addDays } from './dates.ts';
 import type { Size, Task } from './types.ts';
 
 /** Paste the Client ID from Google Cloud here (ends in .apps.googleusercontent.com). */
-export const GOOGLE_CLIENT_ID = '';
+export const GOOGLE_CLIENT_ID = '275542758841-gg578pknv6uqn344muchr3djtb0ua92g.apps.googleusercontent.com';
 
 const SCOPE = 'https://www.googleapis.com/auth/calendar.events';
 const API = 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
