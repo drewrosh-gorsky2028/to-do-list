@@ -45,7 +45,7 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true,
-      "baseUrl": "/pebble-to-do"
+      "baseUrl": "/to-do-list"
     }
   }
 }

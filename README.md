@@ -6,7 +6,7 @@ A personal to-do app with Pebble, an otter who carries his favorite rock. One co
 
 ```bash
 npm install
-npm run web        # opens in the browser (at /pebble-to-do)
+npm run web        # opens in the browser (at /to-do-list)
 npm start          # scan the QR code with the Expo Go app on your phone
 ```
 
@@ -45,4 +45,4 @@ Tasks are saved on the device for now. Supabase sync comes later.
 
 ## Web address
 
-Every merge to `main` publishes the web app to https://drewrosh-gorsky2028.github.io/pebble-to-do/ (see `.github/workflows/deploy-web.yml`).
+Every merge to `main` publishes the web app to https://drewrosh-gorsky2028.github.io/to-do-list/ (see `.github/workflows/deploy-web.yml`).

@@ -116,7 +116,7 @@ export default function TodayScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.scroll,
-          { paddingTop: insets.top + (wide ? 36 : 18), paddingBottom: bottomBar + 150 },
+          { paddingTop: insets.top + (wide ? 36 : 18), paddingBottom: bottomBar + 190 },
         ]}>
         <View style={styles.column}>
           <View style={styles.header}>

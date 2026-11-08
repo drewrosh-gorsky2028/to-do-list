@@ -20,7 +20,7 @@ export function PebbleCorner({ mood, line, onPress, bottom }: Props) {
         accessibilityRole="button"
         accessibilityLabel="Pebble. Tap for something else to say."
         style={({ pressed }) => [styles.spot, celebrating && styles.spotCelebrate, pressed && { transform: [{ scale: 0.95 }] }]}>
-        <PebbleArt mood={mood} size={92} style={styles.art} />
+        <PebbleArt mood={mood} size={136} style={styles.art} />
       </Pressable>
     </View>
   );
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
     gap: 8,
-    maxWidth: 330,
+    maxWidth: 370,
   },
   bubble: {
     flexShrink: 1,
@@ -45,19 +45,19 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 18,
     borderBottomRightRadius: 4,
     backgroundColor: colors.wetStone,
-    marginBottom: 10,
+    marginBottom: 24,
   },
   bubbleCelebrate: { backgroundColor: colors.river },
   bubbleText: { color: '#FFFFFF', fontFamily: fonts.bodySemi, fontSize: 14, lineHeight: 20 },
   spot: {
-    width: 78,
-    height: 78,
-    borderRadius: 39,
+    width: 116,
+    height: 116,
+    borderRadius: 58,
     backgroundColor: colors.sand,
     alignItems: 'center',
     justifyContent: 'flex-end',
     overflow: 'visible',
   },
   spotCelebrate: { backgroundColor: colors.sun },
-  art: { marginBottom: -4 },
+  art: { marginBottom: -6 },
 });
